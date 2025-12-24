@@ -19,14 +19,17 @@ app.use(express.json()); // Memungkinkan server untuk menerima data JSON
 // 4. Konfigurasi Koneksi Database Mongoose
 const mongoURI = process.env.MONGO_URI;
 
+// Nonaktifkan buffering agar error muncul langsung saat DB mati/tidak terkoneksi
+mongoose.set("bufferCommands", false);
+
 if (mongoURI) {
-  // Sembunyikan sebagian URI di log produksi untuk keamanan
   const maskedURI = mongoURI.replace(/:([^@]+)@/, ":****@");
   console.log("Menghubungkan ke MongoDB:", maskedURI);
 
   mongoose
     .connect(mongoURI, {
-      connectTimeoutMS: 10000, // Timeout 10 detik
+      connectTimeoutMS: 5000, // Timeout lebih cepat (5 detik)
+      serverSelectionTimeoutMS: 5000,
     })
     .then(() => console.log("✅ Koneksi ke MongoDB berhasil!"))
     .catch((err) => {
@@ -37,10 +40,20 @@ if (mongoURI) {
   console.error(
     "CRITICAL ERROR: Variabel lingkungan MONGO_URI tidak ditemukan."
   );
-  console.log(
-    "Pastikan MONGO_URI sudah diisi di Vercel Settings -> Environment Variables."
-  );
 }
+
+// 4.1 Middleware Cek Koneksi DB
+// Mencegah error "buffering timed out" dengan langsung menolak request jika DB mati
+const dbGuard = (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({
+      message:
+        "Database tidak terkoneksi. Silakan cek MONGO_URI dan IP Whitelist.",
+      status: "disconnected",
+    });
+  }
+  next();
+};
 // mongoose
 //   .connect(process.env.MONGO_URI)
 //   .then(() => {
@@ -57,10 +70,10 @@ const minumanRoutes = require("./routes/MinumanRoutes");
 const camilanRoutes = require("./routes/CamilanRoutes");
 const orderRoutes = require("./routes/OrderRoutes");
 // Gunakan path /api/makanan untuk semua endpoint makanan
-app.use("/MenuCafe/makanan", makananRoutes);
-app.use("/MenuCafe/minuman", minumanRoutes);
-app.use("/MenuCafe/camilan", camilanRoutes);
-app.use("/history", orderRoutes);
+app.use("/MenuCafe/makanan", dbGuard, makananRoutes);
+app.use("/MenuCafe/minuman", dbGuard, minumanRoutes);
+app.use("/MenuCafe/camilan", dbGuard, camilanRoutes);
+app.use("/history", dbGuard, orderRoutes);
 
 // (Tambahkan routes minuman di sini: app.use('/api/minuman', minumanRoutes);)
 
