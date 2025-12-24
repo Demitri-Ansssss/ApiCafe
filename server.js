@@ -1,7 +1,9 @@
 // server.js
 
 // 1. Load library dan dotenv
-require("dotenv").config({ path: "Api.env" });
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config({ path: "Api.env" });
+}
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -48,9 +50,17 @@ app.use("/history", orderRoutes);
 
 // (Tambahkan routes minuman di sini: app.use('/api/minuman', minumanRoutes);)
 
-// 6. Root Route (Opsional)
+// 6. Root Route dan Health Check
 app.get("/", (req, res) => {
   res.send("Menu API is running!");
+});
+
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    env: process.env.NODE_ENV || "development",
+  });
 });
 
 // 7. Menjalankan Server (Hanya jika tidak di Vercel)

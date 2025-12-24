@@ -30,11 +30,11 @@ router.get("/:id", async (req, res) => {
 // 3. POST: Menambahkan data makanan baru (CREATE)
 router.post("/", async (req, res) => {
   const makanan = new Makanan({
-    Nama: req.body.Nama,
-    Deskripsi: req.body.Deskripsi,
-    Harga: req.body.Harga,
-    Kategori: req.body.Kategori,
-    Gambar: req.body.Gambar,
+    nama: req.body.nama || req.body.Nama,
+    deskripsi: req.body.deskripsi || req.body.Deskripsi,
+    harga: req.body.harga || req.body.Harga,
+    kategori: req.body.kategori || req.body.Kategori,
+    gambar: req.body.gambar || req.body.Gambar,
   });
 
   try {
