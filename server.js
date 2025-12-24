@@ -18,14 +18,28 @@ app.use(express.json()); // Memungkinkan server untuk menerima data JSON
 
 // 4. Konfigurasi Koneksi Database Mongoose
 const mongoURI = process.env.MONGO_URI;
-console.log("Nilai MONGO_URI yang terbaca:", mongoURI);
+
 if (mongoURI) {
+  // Sembunyikan sebagian URI di log produksi untuk keamanan
+  const maskedURI = mongoURI.replace(/:([^@]+)@/, ":****@");
+  console.log("Menghubungkan ke MongoDB:", maskedURI);
+
   mongoose
-    .connect(mongoURI)
+    .connect(mongoURI, {
+      connectTimeoutMS: 10000, // Timeout 10 detik
+    })
     .then(() => console.log("✅ Koneksi ke MongoDB berhasil!"))
-    .catch((err) => console.error("❌ Koneksi ke MongoDB gagal:", err.message));
+    .catch((err) => {
+      console.error("❌ Koneksi ke MongoDB gagal!");
+      console.error("Detail Error:", err.message);
+    });
 } else {
-  console.error("ERROR: Variabel lingkungan MONGO_URI tidak ditemukan.");
+  console.error(
+    "CRITICAL ERROR: Variabel lingkungan MONGO_URI tidak ditemukan."
+  );
+  console.log(
+    "Pastikan MONGO_URI sudah diisi di Vercel Settings -> Environment Variables."
+  );
 }
 // mongoose
 //   .connect(process.env.MONGO_URI)
