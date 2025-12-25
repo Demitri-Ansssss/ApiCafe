@@ -1,9 +1,8 @@
 // server.js
 
 // 1. Load library dan dotenv
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config({ path: "Api.env" });
-}
+require("dotenv").config({ path: "Api.env" });
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -54,15 +53,6 @@ const dbGuard = (req, res, next) => {
   }
   next();
 };
-// mongoose
-//   .connect(process.env.MONGO_URI)
-//   .then(() => {
-//     console.log("✅ Koneksi ke MongoDB berhasil!");
-//   })
-//   .catch((err) => {
-//     console.error("❌ Koneksi ke MongoDB gagal:", err.message);
-//     process.exit(1);
-//   });
 
 // 5. Setup Routes
 const makananRoutes = require("./routes/MakananRoutes");
@@ -75,8 +65,6 @@ app.use("/MenuCafe/minuman", dbGuard, minumanRoutes);
 app.use("/MenuCafe/camilan", dbGuard, camilanRoutes);
 app.use("/history", dbGuard, orderRoutes);
 
-// (Tambahkan routes minuman di sini: app.use('/api/minuman', minumanRoutes);)
-
 // 6. Root Route dan Health Check
 app.get("/", (req, res) => {
   res.send("Menu API is running!");
@@ -87,6 +75,8 @@ app.get("/health", (req, res) => {
     status: "ok",
     db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
     env: process.env.NODE_ENV || "development",
+    hasMongoURI: !!process.env.MONGO_URI,
+    readyState: mongoose.connection.readyState,
   });
 });
 
