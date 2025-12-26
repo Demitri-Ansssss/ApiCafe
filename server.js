@@ -17,7 +17,6 @@ let lastDbError = null;
 // 3. Konfigurasi Middleware
 app.use(cors()); // Mengizinkan semua origin (untuk development)
 app.use(express.json()); // Memungkinkan server untuk menerima data JSON
-app.use(express.static("public")); // Melayani file statis (untuk Admin Panel)
 
 // 4. Konfigurasi Koneksi Database Mongoose
 const mongoURI = process.env.MONGO_URI;
