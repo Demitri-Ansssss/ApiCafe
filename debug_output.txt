@@ -1,0 +1,7 @@
+URI: mongodb+srv://Ansss:BWUifSLGVC...
+ALL_COLLECTIONS: makanans, camilans, minumen, orders
+MODEL_Makanan_COUNT: 2 (collection: makanans)
+MODEL_Minuman_COUNT: 2 (collection: minumen)
+MODEL_Camilan_COUNT: 2 (collection: camilans)
+MODEL_Order_COUNT: 0 (collection: orders)
+DONE

@@ -28,7 +28,8 @@ const MakananSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Menambahkan createdAt dan updatedAt
+    timestamps: true,
+    collection: "MenuMakanan",
   }
 );
 

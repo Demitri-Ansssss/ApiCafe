@@ -35,6 +35,7 @@ const OrderSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    collection: "orders",
   }
 );
 

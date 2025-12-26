@@ -1,0 +1,11 @@
+DATABASES:
+MenuCafe, sample_mflix, test, admin, local
+
+Collections in DB 'MenuCafe':
+MenuCamilan, MenuMakanan, MenuMinuman
+
+Collections in DB 'sample_mflix':
+sessions, users, comments, movies, embedded_movies, theaters
+
+Collections in DB 'test':
+makanans, camilans, minumen, orders
