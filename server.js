@@ -94,13 +94,19 @@ app.get("/", (req, res) => {
 });
 
 app.get("/health", (req, res) => {
+  const mongoURI = process.env.MONGO_URI || "";
+  const maskedURI =
+    mongoURI.replace(/:([^@]+)@/, ":****@").substring(0, 50) + "...";
+
   res.json({
     status: "ok",
     db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
     env: process.env.NODE_ENV || "development",
     hasMongoURI: !!process.env.MONGO_URI,
     readyState: mongoose.connection.readyState,
-    lastError: lastDbError, // Tampilkan error terakhir di sini
+    lastError: lastDbError,
+    nodeVersion: process.version,
+    uriPreview: maskedURI, // Untuk memastikan Vercel membaca URI yang benar
   });
 });
 
