@@ -40,9 +40,13 @@ if (mongoURI) {
     })
     .catch((err) => {
       console.error("❌ Koneksi ke MongoDB gagal!");
-      console.error("Detail Error:", err.message);
 
       let errorHint = `${err.name}: ${err.message}`;
+      if (err.reason) {
+        // MongooseServerSelectionError often stores details in reason
+        errorHint += ` | Reason: ${err.reason.message || "Unknown reason"}`;
+      }
+
       // Cek apakah ada karakter spesial di password
       if (
         mongoURI.includes("@") &&
@@ -107,7 +111,10 @@ app.get("/health", (req, res) => {
     readyState: mongoose.connection.readyState,
     lastError: lastDbError,
     nodeVersion: process.version,
-    uriPreview: maskedURI, // Untuk memastikan Vercel membaca URI yang benar
+    uriPreview: maskedURI,
+    uriLength: mongoURI.length, // Check for hidden spaces
+    uriStart: mongoURI.substring(0, 10),
+    uriEnd: mongoURI.substring(mongoURI.length - 10),
   });
 });
 
