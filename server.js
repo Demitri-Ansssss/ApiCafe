@@ -11,6 +11,9 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Variabel untuk menyimpan error koneksi terakhir
+let lastDbError = null;
+
 // 3. Konfigurasi Middleware
 app.use(cors()); // Mengizinkan semua origin (untuk development)
 app.use(express.json()); // Memungkinkan server untuk menerima data JSON
@@ -30,10 +33,14 @@ if (mongoURI) {
       connectTimeoutMS: 5000, // Timeout lebih cepat (5 detik)
       serverSelectionTimeoutMS: 5000,
     })
-    .then(() => console.log("✅ Koneksi ke MongoDB berhasil!"))
+    .then(() => {
+      console.log("✅ Koneksi ke MongoDB berhasil!");
+      lastDbError = null; // Reset error saat berhasil
+    })
     .catch((err) => {
       console.error("❌ Koneksi ke MongoDB gagal!");
       console.error("Detail Error:", err.message);
+      lastDbError = err.message; // Simpan pesan error
     });
 } else {
   console.error(
@@ -77,6 +84,7 @@ app.get("/health", (req, res) => {
     env: process.env.NODE_ENV || "development",
     hasMongoURI: !!process.env.MONGO_URI,
     readyState: mongoose.connection.readyState,
+    lastError: lastDbError, // Tampilkan error terakhir di sini
   });
 });
 
