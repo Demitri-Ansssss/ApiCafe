@@ -30,8 +30,8 @@ if (mongoURI) {
 
   mongoose
     .connect(mongoURI, {
-      connectTimeoutMS: 5000, // Timeout lebih cepat (5 detik)
-      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 30000, // Tingkatkan ke 30 detik
+      serverSelectionTimeoutMS: 30000,
     })
     .then(() => {
       console.log("✅ Koneksi ke MongoDB berhasil!");
@@ -40,7 +40,23 @@ if (mongoURI) {
     .catch((err) => {
       console.error("❌ Koneksi ke MongoDB gagal!");
       console.error("Detail Error:", err.message);
-      lastDbError = err.message; // Simpan pesan error
+
+      let errorHint = err.message;
+      // Cek apakah ada karakter spesial di password yang mungkin perlu di-encode
+      if (
+        mongoURI.includes("@") &&
+        mongoURI.lastIndexOf("@") > mongoURI.indexOf(":")
+      ) {
+        const credentials = mongoURI.split("@")[0].split("//")[1];
+        if (credentials && credentials.includes(":")) {
+          const password = credentials.split(":")[1];
+          if (/[#$^[\]{}|\\<>%^]/.test(password)) {
+            errorHint +=
+              " (TIP: Password Anda mengandung karakter spesial. Coba URL-encode password tersebut, contoh: '#' menjadi '%23')";
+          }
+        }
+      }
+      lastDbError = errorHint;
     });
 } else {
   console.error(
